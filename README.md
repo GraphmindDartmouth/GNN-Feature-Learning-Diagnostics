@@ -31,7 +31,7 @@ Common placeholders:
 | `/path/to/eval` | Pickle outputs from `evaluator.py`. |
 | `Your-Entity` | W&B entity name used when querying sweep results. |
 
-## Repository layout
+<!-- ## Repository layout
 
 - `models.py`: Model definitions (MLPs, MPNNs, Graph Transformer variants).
 - `utils.py`: Shared utilities (seed setup, KTA computation, graph transform, and train/test loops for image, superpixel, and PE models).
@@ -39,7 +39,7 @@ Common placeholders:
 - `evaluator.py`: Per-scale evaluation loop that tracks accuracy and kernel target alignment (KTA) during training.
 - `kta.py`: Post-training KTA change analysis using W&B-selected trained models.
 - `transfer.py`: Train on digits 0-4, then probe transfer to digits 5-9 with a linear classifier.
-- `data.ipynb`: Data download and processing.
+- `data.ipynb`: Data download and processing. -->
 
 ## Usage
 
