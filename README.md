@@ -16,7 +16,7 @@ Minimum packages:
 
 The scripts assume local datasets and model output directories; replace the `/path/to/...` placeholders in the code with your paths.
 
-## Reviewer setup notes
+<!-- ## Reviewer setup notes
 
 This is an anonymized illustrative code release for review. Full execution requires replacing local path and W&B placeholders before running experiments.
 
@@ -29,9 +29,9 @@ Common placeholders:
 | `/path/to/data_lappe` | MNIST graph data with LapPE positional encodings. |
 | `/path/to/model` | Saved model artifacts from W&B sweep runs. |
 | `/path/to/eval` | Pickle outputs from `evaluator.py`. |
-| `Your-Entity` | W&B entity name used when querying sweep results. |
+| `Your-Entity` | W&B entity name used when querying sweep results. | -->
 
-<!-- ## Repository layout
+## Repository layout
 
 - `models.py`: Model definitions (MLPs, MPNNs, Graph Transformer variants).
 - `utils.py`: Shared utilities (seed setup, KTA computation, graph transform, and train/test loops for image, superpixel, and PE models).
@@ -39,7 +39,7 @@ Common placeholders:
 - `evaluator.py`: Per-scale evaluation loop that tracks accuracy and kernel target alignment (KTA) during training.
 - `kta.py`: Post-training KTA change analysis using W&B-selected trained models.
 - `transfer.py`: Train on digits 0-4, then probe transfer to digits 5-9 with a linear classifier.
-- `data.ipynb`: Data download and processing. -->
+- `data.ipynb`: Data download and processing.
 
 ## Usage
 
