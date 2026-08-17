@@ -489,10 +489,10 @@ class TokenGTLayer(nn.Module):
         return h
 
 class TokenGT(nn.Module):
-    def __init__(self, channels, num_layers, num_classes):
+    def __init__(self, channels, num_layers, num_classes, pe_dim=32):
         super().__init__()
         d_feat = int(0.5 * channels)
-        d_pe = int(0.15 * channels)
+        d_pe = pe_dim
         d_type = channels - (d_feat + 2 * d_pe)
 
         self.node_proj = nn.Linear(3, d_feat)

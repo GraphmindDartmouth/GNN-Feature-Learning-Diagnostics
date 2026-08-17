@@ -53,40 +53,40 @@ def kernel_change_metrics(k_init, k_final, label):
     return kta - init_kta
 
 
-def build_models(base, best_model_dict, scale, device, num_classes):
+def build_models(base, best_model_dict, scale, device, num_classes, width=256, pe_dim=32, layers=3):
     ## NOTE: ensure init_model configurations match those used in the original training runs for the best models in trainer.py, otherwise the KTA comparison may not be meaningful
     if base == "tokengt":
-        init_model = TokenGT(channels=128, num_layers=2, num_classes=num_classes).to(device)
+        init_model = TokenGT(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=num_classes).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "gt":
-        init_model = GraphTransformer(channels=128, pe_dim=16, num_layers=2, num_classes=num_classes, use_edge=False).to(device)
+        init_model = GraphTransformer(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=num_classes, use_edge=False).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "gps":
-        init_model = GPS(channels=128, pe_dim=16, num_layers=2, num_classes=num_classes, attn_type="multihead").to(device)
+        init_model = GPS(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=num_classes, attn_type="multihead").to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "mlp":
-        init_model = spMLP(d=3, h=512, c=num_classes, l=4).to(device)
+        init_model = spMLP(d=3, h=width, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "gcn":
-        init_model = spGCN(d=3, h=512, c=num_classes, l=4).to(device)
+        init_model = spGCN(d=3, h=width, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "gcn2":
-        init_model = spGCN2(d=3, h=512, c=num_classes, l=4).to(device)
+        init_model = spGCN2(d=3, h=width, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "gat":
-        init_model = spGAT(d=3, h=128, c=num_classes, l=4).to(device)
+        init_model = spGAT(d=3, h=width, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "sage":
-        init_model = spSAGE(d=3, h=256, c=num_classes, l=4).to(device)
+        init_model = spSAGE(d=3, h=width, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "sgc":
         init_model = SGC(d=3, h=8192, c=num_classes, l=5).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "mlp_lappe":
-        init_model = peMLP(d=3, h=256, p=32, c=num_classes, l=4).to(device)
+        init_model = peMLP(d=3, h=width, p=pe_dim, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "mlp_rwpe":
-        init_model = peMLP(d=3, h=256, p=32, c=num_classes, l=4).to(device)
+        init_model = peMLP(d=3, h=width, p=pe_dim, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "mlp_image":
         init_model = SimpleNN().to(device)
@@ -95,10 +95,10 @@ def build_models(base, best_model_dict, scale, device, num_classes):
         init_model = SimpleNN().to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "gcn+":
-        init_model = GCN(channels=128, pe_dim=16, num_layers=2, num_classes=num_classes).to(device)
+        init_model = GCN(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=num_classes).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     elif base == "adgn":
-        init_model = spADGN(d=3, h=256, c=num_classes, l=4).to(device)
+        init_model = spADGN(d=3, h=width, c=num_classes, l=layers).to(device)
         model = best_model_dict[WANDB_MODEL_KEY[base]][scale].to(device)
     else:
         raise ValueError(f"Unknown base: {base}")
@@ -214,8 +214,8 @@ def extract_representations(model, dataset, base, batch_size, device, num_classe
     return torch.cat(rep_list, dim=0).float(), torch.cat(label_list, dim=0).float()
 
 
-def main(best_model_dict, scale, base, device, batch_size, num_classes, data_root, data_root_lappe, data_root_rwpe):
-    init_model, model = build_models(base, best_model_dict, scale, device, num_classes)
+def main(best_model_dict, scale, base, device, batch_size, num_classes, data_root, data_root_lappe, data_root_rwpe, width=256, pe_dim=32, layers=3):
+    init_model, model = build_models(base, best_model_dict, scale, device, num_classes, width, pe_dim, layers)
     _, test_dataset = load_datasets(base, data_root, data_root_lappe, data_root_rwpe)
 
     rep_tensor, label_tensor = extract_representations(init_model, test_dataset, base, batch_size, device, num_classes)
@@ -246,6 +246,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", type=str, required=True, choices=ALL_BASES)
     parser.add_argument("--device", type=int, default=0)
+    parser.add_argument("--width", type=int, default=256)
+    parser.add_argument("--pe_dim", type=int, default=32)
+    parser.add_argument("--layers", type=int, default=3)
     args = parser.parse_args()
 
     device = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu")
@@ -280,6 +283,9 @@ if __name__ == "__main__":
             DEFAULT_DATA_ROOT,
             DEFAULT_DATA_ROOT_LAPPE,
             DEFAULT_DATA_ROOT_RWPE,
+            args.width,
+            args.pe_dim,
+            args.layers,
         )
         kta_diff_list.append(kta_diff)
 

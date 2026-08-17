@@ -1,5 +1,5 @@
 # MNIST Graph Experiments
-This repo is for the manuscript ``Diagnosing Graph Neural Networks: Do They Operate in the Feature Learning Regime and How?`` under review at NeurIPS 2026. For review purposes we provide illustrative code for the MNIST experiments, including transfer learning and feature learning assessment of various graph models, with or without PE.
+This repo is for the manuscript ``Diagnosing Graph Neural Networks: Do They Operate in the Feature Learning Regime and How?`` under review at TMLR. For review purposes we provide illustrative code for the MNIST experiments, including transfer learning and feature learning assessment of various graph models, with or without PE.
 
 ## Requirements
 
@@ -48,9 +48,9 @@ All scripts are standalone CLIs. Replace any `/path/to/...` in the code with you
 ### Training sweeps
 
 ```bash
-python trainer.py mpnn  --model_name GCN  --epochs 500 --layers 4 --device 0
-python trainer.py attn  --model_name GPS  --epochs 500 --layers 2 --device 0
-python trainer.py pe    --model_name MLP_RWPE --epochs 500 --layers 4 --device 0
+python trainer.py mpnn  --model_name GCN  --epochs 500 --layers 3 --device 0
+python trainer.py attn  --model_name GPS  --epochs 500 --layers 3 --device 0
+python trainer.py pe    --model_name MLP_RWPE --epochs 500 --layers 3 --device 0
 python trainer.py image --epochs 500 --device 0
 ```
 

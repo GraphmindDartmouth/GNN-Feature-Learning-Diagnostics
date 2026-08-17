@@ -55,7 +55,7 @@ def run_mpnn(args):
     else:
         # NOTE: hyperparameters need to be searched per model and scale
         lr_val = 3e-4
-        hd_val = 256
+        hd_val = args.width
         sweep_configuration = {
             "method": "grid",
             "name": f"{args.model_name}",
@@ -171,7 +171,7 @@ def run_attn(args):
             sweep_name = f"TokenGT-PE_{not args.no_pe}"
         # NOTE: hyperparameters need to be searched per model and scale
         lr_val = 2e-4
-        hd_val = 128
+        hd_val = args.width
         sweep_configuration = {
             "method": "grid",
             "name": sweep_name,
@@ -201,7 +201,7 @@ def run_attn(args):
 
         for scale in SCALE_FACTORS:
             if args.model_name == "GPS":
-                model = GPS(channels=hd, pe_dim=hd // 8, num_layers=l, num_classes=10, attn_type='multihead', conv_only=args.conv_only, attn_only=args.attn_only).to(device)
+                model = GPS(channels=hd, pe_dim=args.pe_dim, num_layers=l, num_classes=10, attn_type='multihead', conv_only=args.conv_only, attn_only=args.attn_only).to(device)
                 with torch.no_grad():
                     for conv in model.convs:
                         if args.conv_only:
@@ -212,7 +212,7 @@ def run_attn(args):
                             conv.conv.lin.weight *= scale
                             conv.attn.in_proj_weight *= scale
             elif args.model_name == "GT":
-                model = GraphTransformer(channels=hd, pe_dim=hd // 8, num_layers=l, num_classes=10, use_edge=not args.no_edge).to(device)
+                model = GraphTransformer(channels=hd, pe_dim=args.pe_dim, num_layers=l, num_classes=10, use_edge=not args.no_edge).to(device)
                 with torch.no_grad():
                     for layer in model.layers:
                         layer.lin_q.weight *= scale
@@ -220,12 +220,12 @@ def run_attn(args):
                         layer.lin_v.weight *= scale
                         layer.lin_out.weight *= scale
             elif args.model_name == "GCN":
-                model = GCN(channels=hd, pe_dim=hd // 8, num_layers=l, num_classes=10).to(device)
+                model = GCN(channels=hd, pe_dim=args.pe_dim, num_layers=l, num_classes=10).to(device)
                 with torch.no_grad():
                     for conv in model.convs:
                         conv.conv.lin.weight *= scale
             elif args.model_name == "TokenGT":
-                model = TokenGT(channels=hd, num_layers=l, num_classes=10).to(device)
+                model = TokenGT(channels=hd, pe_dim=args.pe_dim, num_layers=l, num_classes=10).to(device)
                 with torch.no_grad():
                     for layer in model.layers:
                         layer.attn.in_proj_weight *= scale
@@ -286,7 +286,7 @@ def run_pe(args):
     else:
         # NOTE: hyperparameters need to be searched per model and scale
         lr_val = 3e-4
-        hd_val = 256
+        hd_val = args.width
         sweep_configuration = {
             "method": "grid",
             "name": f"{args.model_name}",
@@ -311,7 +311,7 @@ def run_pe(args):
         test_loader = GeoDataLoader(dataset=test_dataset, batch_size=bs, shuffle=False)
 
         for scale in SCALE_FACTORS:
-            model = peMLP(d=3, h=hd, p=hd // 8, c=10, l=l).to(device)
+            model = peMLP(d=3, h=hd, p=args.pe_dim, c=10, l=l).to(device)
             with torch.no_grad():
                 for layer in model.hidden_layers:
                     layer.weight *= scale
@@ -475,13 +475,16 @@ def main():
     parser_mpnn = subparsers.add_parser("mpnn")
     parser_mpnn.add_argument("--model_name", type=str, required=True, choices=['SGC', 'MLP', 'GAT', 'SAGE', 'GCN', 'GCN2', 'ADGN'])
     parser_mpnn.add_argument("--epochs", type=int, required=True)
-    parser_mpnn.add_argument("--layers", type=int, required=True)
+    parser_mpnn.add_argument("--layers", type=int, default=3)
+    parser_mpnn.add_argument("--width", type=int, default=256)
     parser_mpnn.add_argument("--device", type=int, required=True)
     parser_mpnn.add_argument("--sweep_id", type=str, default=None)
 
     parser_attn = subparsers.add_parser("attn")
     parser_attn.add_argument("--epochs", type=int, required=True)
-    parser_attn.add_argument("--layers", type=int, required=True)
+    parser_attn.add_argument("--layers", type=int, default=3)
+    parser_attn.add_argument("--width", type=int, default=256)
+    parser_attn.add_argument("--pe_dim", type=int, default=32)
     parser_attn.add_argument("--device", type=int, required=True)
     parser_attn.add_argument("--model_name", type=str, required=True, choices=["GPS", "GT", "GCN", "TokenGT"])
     parser_attn.add_argument("--no_pe", action="store_true", default=False)
@@ -493,7 +496,9 @@ def main():
     parser_pe = subparsers.add_parser("pe")
     parser_pe.add_argument("--model_name", type=str, required=True, choices=['MLP_RWPE', 'MLP_LAPPE'])
     parser_pe.add_argument("--epochs", type=int, required=True)
-    parser_pe.add_argument("--layers", type=int, required=True)
+    parser_pe.add_argument("--layers", type=int, default=3)
+    parser_pe.add_argument("--width", type=int, default=256)
+    parser_pe.add_argument("--pe_dim", type=int, default=32)
     parser_pe.add_argument("--device", type=int, required=True)
     parser_pe.add_argument("--sweep_id", type=str, default=None)
 

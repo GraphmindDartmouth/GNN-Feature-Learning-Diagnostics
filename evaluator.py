@@ -28,38 +28,38 @@ SP_BASES = {"mlp", "gcn", "gcn2", "gat", "sage", "sgc", "adgn"}
 PE_MLP_BASES = {"mlp_rwpe", "mlp_lappe"}
 IMAGE_BASES = {"mlp_image", "mlp_image_sp"}
 
-def main(scale, base, train_loader, test_loader, lr, device):
+def main(scale, base, train_loader, test_loader, lr, device, width=256, pe_dim=32, layers=3):
     # NOTE: model configuration may need to be adjusted
     if base == "gt":
-        model = GraphTransformer(channels=128, pe_dim=16, num_layers=2, num_classes=n_classes, use_edge=False).to(device)
+        model = GraphTransformer(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=n_classes, use_edge=False).to(device)
     elif base == "tokengt":
-        model = TokenGT(channels=128, num_layers=2, num_classes=n_classes).to(device)
+        model = TokenGT(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=n_classes).to(device)
     elif base == "gps":
-        model = GPS(channels=128, pe_dim=16, num_layers=2, num_classes=n_classes, attn_type='multihead').to(device)
+        model = GPS(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=n_classes, attn_type='multihead').to(device)
     elif base == "mlp":
-        model = spMLP(d = 3, h = 512, c = n_classes, l = 4).to(device)
+        model = spMLP(d = 3, h = width, c = n_classes, l = layers).to(device)
     elif base == "gcn":
-        model = spGCN(d = 3, h = 512, c = n_classes, l = 4).to(device)
+        model = spGCN(d = 3, h = width, c = n_classes, l = layers).to(device)
     elif base == "gcn2":
-        model = spGCN2(d = 3, h = 512, c = n_classes, l = 4).to(device)
+        model = spGCN2(d = 3, h = width, c = n_classes, l = layers).to(device)
     elif base == "gat":
-        model = spGAT(d = 3, h = 128, c = n_classes, l = 4).to(device)
+        model = spGAT(d = 3, h = width, c = n_classes, l = layers).to(device)
     elif base == "sage":
-        model = spSAGE(d = 3, h = 256, c = n_classes, l = 4).to(device)
+        model = spSAGE(d = 3, h = width, c = n_classes, l = layers).to(device)
     elif base == "sgc":
         model = SGC(d = 3, h = 8192, c = n_classes, l = 5).to(device)
     elif base == "mlp_rwpe":
-        model = peMLP(d = 3, h = 256, p = 32, c = n_classes, l = 4).to(device)
+        model = peMLP(d = 3, h = width, p = pe_dim, c = n_classes, l = layers).to(device)
     elif base == "mlp_lappe":
-        model = peMLP(d = 3, h = 256, p = 32, c = n_classes, l = 4).to(device)
+        model = peMLP(d = 3, h = width, p = pe_dim, c = n_classes, l = layers).to(device)
     elif base == "mlp_image":
         model = SimpleNN().to(device)
     elif base == "mlp_image_sp":
         model = SimpleNN().to(device)
     elif base == "gcn+":
-        model = GCN(channels=128, pe_dim=16, num_layers=2, num_classes=n_classes).to(device)
+        model = GCN(channels=width, pe_dim=pe_dim, num_layers=layers, num_classes=n_classes).to(device)
     elif base == "adgn":
-        model = spADGN(d = 3, h = 256, c = n_classes, l = 4).to(device)
+        model = spADGN(d = 3, h = width, c = n_classes, l = layers).to(device)
     else:
         raise ValueError(f"Unsupported base: {base}")
 
@@ -215,6 +215,9 @@ if __name__ == "__main__":
         "adgn",
     ])
     parser.add_argument("--device", type=int, required=True)
+    parser.add_argument("--width", type=int, default=256)
+    parser.add_argument("--pe_dim", type=int, default=32)
+    parser.add_argument("--layers", type=int, default=3)
     args = parser.parse_args()
     base = args.base
     device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
@@ -257,7 +260,7 @@ if __name__ == "__main__":
     os.makedirs("/path/to/eval", exist_ok=True)
 
     for scale in scale_factors:
-        main(scale, base, train_loader, test_loader, lr, device)
+        main(scale, base, train_loader, test_loader, lr, device, args.width, args.pe_dim, args.layers)
     with open(save_dict_train, "wb") as f:
         pickle.dump(train_dict, f)
     with open(save_dict_test, "wb") as f:
