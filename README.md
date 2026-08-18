@@ -1,5 +1,5 @@
 # MNIST Graph Experiments
-This repo is for the manuscript ``Diagnosing Graph Neural Networks: Do They Operate in the Feature Learning Regime and How?`` under review at TMLR. For review purposes we provide illustrative code for the MNIST experiments, including transfer learning and feature learning assessment of various graph models, with or without PE.
+This repo is for the `GNN feature learning diagnostics` manuscript under review at TMLR. For review purposes we provide illustrative code for the MNIST experiments, including transfer learning and feature learning assessment of various graph models, with or without PE.
 
 ## Requirements
 
