@@ -1,5 +1,16 @@
-# MNIST Graph Experiments
-This repo is for the `GNN feature learning diagnostics` manuscript under review at TMLR. For review purposes we provide illustrative code for the MNIST experiments, including transfer learning and feature learning assessment of various graph models, with or without PE.
+<div align="center">
+
+# Diagnosing Graph Neural Networks: Do They Exhibit Typical Feature Learning Behaviors and How?
+
+**TMLR 12/2026**
+
+Tao Wen<sup>1</sup> · Gael C. Popescu<sup>2</sup> · Dawei Zhou<sup>3</sup> · Yaoqing Yang<sup>1</sup> · Yujun Yan<sup>1</sup>
+
+<sup>1</sup>Dartmouth College &nbsp;&nbsp; <sup>2</sup>Hanover High School &nbsp;&nbsp; <sup>3</sup>Virginia Tech
+
+[![Paper](https://img.shields.io/badge/Paper-TMLR-b31b1b?style=for-the-badge&logo=readthedocs&logoColor=white)](https://openreview.net/forum?id=YDdhKmyA4r)
+
+</div>
 
 ## Requirements
 
